@@ -1,0 +1,130 @@
+# ============================================================================
+# Vuln Scanner — example configuration with all available options.
+#
+# This file gets copied into an investigation folder as `vuln-scanner.toml`
+# (either by `vuln-scanner init -c <this-file>` or by hand). After that,
+# `vuln-scanner run` reads it from cwd — there is no `-c` flag on `run`.
+#
+# A TOML config overlays settings on top of a "prompt profile" (Python module
+# that defines the LLM prompts). The built-in profile is "vuln-scan"; you can
+# also write your own with custom prompts and reference it via prompt_profile.
+# ============================================================================
+
+
+# ---------------------------------------------------------------------------
+# Attack classes — which vulnerability categories to scan for.
+# The recon phase assigns relevant classes to each scope.
+# MUST appear before any [section] header (TOML top-level key).
+# ---------------------------------------------------------------------------
+attack_classes = [
+    "command_injection",
+    "sql_injection",
+    "path_traversal",
+    "authentication_bypass",
+    "authorization_bypass",
+    "buffer_overflow",
+    "use_after_free",
+    "format_string",
+    "integer_overflow",
+    "deserialization",
+    "ssrf",
+    "xxe",
+    "xss",
+    "open_redirect",
+    "race_condition",
+    "crypto_misuse",
+    "information_disclosure",
+]
+
+
+# ---------------------------------------------------------------------------
+# [scan] — prompt profile, branch prefix, limits, and timeouts.
+# ---------------------------------------------------------------------------
+[scan]
+# Prompt profile: builtin name ("vuln-scan") or path to a .py file.
+prompt_profile = "vuln-scan"
+
+# Git branch prefix for worktree isolation.
+branch_prefix = "vuln-scan"
+
+# Maximum hunt tasks per run. 0 = unlimited.
+max_tasks = 4
+
+# Default task timeout in seconds. 0 = no timeout.
+task_timeout = 0
+
+# Per-phase timeout overrides (seconds).
+# Phases not listed use the global task_timeout above.
+[scan.task_timeouts]
+# recon       = 600
+# hunt        = 900
+# validate    = 600
+# dedupe      = 300
+# consolidate = 300
+
+
+# ---------------------------------------------------------------------------
+# [agent] — LLM backend and per-phase model selection.
+# ---------------------------------------------------------------------------
+[agent]
+# Backend selection. Built-ins:
+#   "claude"     — subprocesses the Claude Code CLI (`claude -p`)
+#   "claude-sdk" — in-process via the claude-agent-sdk Python library
+#                  (same model + tools as "claude"; streams structured events
+#                  to the log file; lays groundwork for session resume)
+#   "pi"         — Oh My Pi agent CLI
+backend = "claude"
+
+# Extra flags appended to the agent command (space-separated).
+# Examples:  flags = "--verbose"
+#            flags = "--thinking high"
+flags = ""
+
+# Custom backends can be defined entirely in config — no code changes needed.
+# Each entry under [agent.backends] creates a CommandBackend from these fields:
+#   executable  — binary name or path (required)
+#   prompt_flag — flag placed before the prompt text (required)
+#   model_flag  — flag placed before the model name (optional; omit if backend
+#                 has no model flag, then models are ignored for this backend)
+#   extra_args  — always-on arguments inserted before model/prompt/flags
+#
+# Example for a hypothetical "gemini-cli" tool:
+# [agent.backends.gemini]
+# executable = "gemini-cli"
+# model_flag = "--model"
+# prompt_flag = "--prompt"
+# extra_args = ["--yes"]
+#
+# Then set:  backend = "gemini"
+
+# Per-phase model overrides. Any phase left commented out / unset falls back
+# to the agent backend's configured default.
+# The defaults is NO models specified, the backend's default is used.
+[agent.models]
+# recon       = "claude-sonnet-4-6"
+# hunt        = "claude-sonnet-4-6"
+# validate    = "claude-opus-4-7"   # different model for adversarial review
+# dedupe      = "…"
+# consolidate = "…"
+
+
+# ---------------------------------------------------------------------------
+# [output] — filenames written by each phase (inside runs/<run-id>/<phase>/).
+# ---------------------------------------------------------------------------
+[output]
+recon       = "HUNT_QUEUE.json"
+hunt        = "FINDING.md"
+validate    = "VERIFICATION.md"
+dedupe      = "FINDINGS.md"
+consolidate = "SUMMARY.md"
+
+
+# ---------------------------------------------------------------------------
+# [files] — source file discovery.
+# ---------------------------------------------------------------------------
+[files]
+# Comma-separated file extensions to scan (no leading dot).
+extensions = "c,cpp,h,hpp,cc,cxx,java,py,rb,rs,go,js,ts,jsx,tsx,php,cs,swift,kt,scala,zig,nim,lua,pl,sh,bash,zsh,sql,html,xml,yaml,yml,toml,json,conf,ini,cfg"
+
+# Directory names to skip during file discovery.
+exclude_dirs = ["node_modules", ".git", "vendor", "__pycache__", ".venv"]

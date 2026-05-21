@@ -1,0 +1,6 @@
+# Per-investigation runtime artifacts
+**/worktrees/
+**/target/
+**/.vuln-scanner.lock
+**/runs/
+**/SUMMARY.md
