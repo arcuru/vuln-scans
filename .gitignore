@@ -2,5 +2,3 @@
 **/worktrees/
 **/target/
 **/.vuln-scanner.lock
-**/runs/
-**/SUMMARY.md
