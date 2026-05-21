@@ -48,7 +48,7 @@ prompt_profile = "vuln-scan"
 branch_prefix = "vuln-scan"
 
 # Maximum hunt tasks per run. 0 = unlimited.
-max_tasks = 4
+max_tasks = 0
 
 # Default task timeout in seconds. 0 = no timeout.
 task_timeout = 0
@@ -56,11 +56,11 @@ task_timeout = 0
 # Per-phase timeout overrides (seconds).
 # Phases not listed use the global task_timeout above.
 [scan.task_timeouts]
-# recon       = 600
-# hunt        = 900
-# validate    = 600
-# dedupe      = 300
-# consolidate = 300
+recon       = 600
+hunt        = 900
+validate    = 600
+dedupe      = 300
+consolidate = 300
 
 
 # ---------------------------------------------------------------------------
@@ -73,7 +73,7 @@ task_timeout = 0
 #                  (same model + tools as "claude"; streams structured events
 #                  to the log file; lays groundwork for session resume)
 #   "pi"         — Oh My Pi agent CLI
-backend = "claude"
+backend = "pi"
 
 # Extra flags appended to the agent command (space-separated).
 # Examples:  flags = "--verbose"
@@ -101,11 +101,11 @@ flags = ""
 # to the agent backend's configured default.
 # The defaults is NO models specified, the backend's default is used.
 [agent.models]
-# recon       = "claude-sonnet-4-6"
-# hunt        = "claude-sonnet-4-6"
-# validate    = "claude-opus-4-7"   # different model for adversarial review
-# dedupe      = "…"
-# consolidate = "…"
+recon       = "openrouter/deepseek/deepseek-v4-flash"
+hunt        = "openrouter/deepseek/deepseek-v4-flash"
+validate    = "openrouter/deepseek/deepseek-v4-flash"
+dedupe      = "openrouter/deepseek/deepseek-v4-flash"
+consolidate = "openrouter/deepseek/deepseek-v4-flash"
 
 
 # ---------------------------------------------------------------------------
